@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="vi"><head>
+<html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Giờ Làm">
+<meta name="apple-mobile-web-app-title" content="Work Timer">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0b0f14">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon.png">
-<title>Giờ Làm</title>
+<title>Work Timer</title>
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;background:#0b0f14;color:#e8edf2;font-family:-apple-system,system-ui,sans-serif;padding:max(env(safe-area-inset-top),16px) 16px 40px}
@@ -25,17 +25,17 @@ h1{font-size:20px;margin:8px 0 16px;color:#9fb0c0;font-weight:600}
 .step button{background:#263140;color:#fff;border:0;border-radius:8px;width:36px;height:36px;font-size:20px}
 .del{background:none;border:0;color:#7d8fa1;font-size:18px}
 </style></head><body><div class="wrap">
-<h1>Giờ Làm</h1>
+<h1>Work Timer</h1>
 <div class="clock" id="clock">00:00:00</div>
 <button class="btn" id="toggle">START</button>
 <div class="card">
-  <div class="row"><b>Tuần này (T2 → CN)</b><b id="week">0h 00p</b></div>
+  <div class="row"><b>This week (Mon → Sun)</b><b id="week">0h 00m</b></div>
   <div class="bar"><i id="fill"></i></div>
   <div id="need"></div>
-  <div class="row step"><span>Tối thiểu mỗi tuần</span>
+  <div class="row step"><span>Weekly minimum</span>
     <span><button id="m">−</button> <b id="tgt">20</b>h <button id="p">+</button></span></div>
 </div>
-<div class="card"><b>Các ca trong tuần</b><div id="list"></div></div>
+<div class="card"><b>Sessions this week</b><div id="list"></div></div>
 </div>
 <script>
 const K='gioLam.sessions',T='gioLam.target';
@@ -46,7 +46,7 @@ const running=()=>load().find(s=>!s.end);
 function start(){if(running())return;const s=load();s.push({id:Date.now(),start:Date.now()});save(s)}
 function stop(){const s=load(),r=s.find(x=>!x.end);if(r){r.end=Date.now();save(s)}}
 function weekRange(d=new Date()){const x=new Date(d);x.setHours(0,0,0,0);const day=(x.getDay()+6)%7;x.setDate(x.getDate()-day);return[x.getTime(),x.getTime()+7*864e5]}
-const hm=ms=>{const m=Math.floor(ms/6e4);return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'p'};
+const hm=ms=>{const m=Math.floor(ms/6e4);return Math.floor(m/60)+'h '+String(m%60).padStart(2,'0')+'m'};
 const clk=ms=>{const s=Math.max(0,Math.floor(ms/1e3));return[Math.floor(s/3600),Math.floor(s%3600/60),s%60].map(n=>String(n).padStart(2,'0')).join(':')};
 const $=id=>document.getElementById(id);
 function render(){
@@ -57,15 +57,15 @@ function render(){
   $('clock').textContent=clk(r?now-r.start:0);
   $('toggle').textContent=r?'STOP':'START';$('toggle').className='btn'+(r?' stop':'');
   $('week').textContent=hm(week);$('fill').style.width=Math.min(100,week/goal*100)+'%';
-  $('need').innerHTML=miss>0?'<span class="warn">Còn thiếu '+hm(miss)+' để đủ '+target+'h</span>':'<span class="ok">Đủ '+target+'h rồi ✅</span>';
+  $('need').innerHTML=miss>0?'<span class="warn">'+hm(miss)+' left to reach '+target+'h</span>':'<span class="ok">Reached '+target+'h ✅</span>';
   $('tgt').textContent=target;
-  const f=t=>new Date(t).toLocaleString('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-  $('list').innerHTML=inWeek.length?inWeek.map(s=>'<div class="row"><div>'+f(s.start)+'<div class="mut">'+(s.end?'→ '+new Date(s.end).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'đang chạy')+'</div></div><div>'+hm((s.end||now)-s.start)+' <button class="del" data-id="'+s.id+'">✕</button></div></div>').join(''):'<div class="mut" style="padding-top:8px">Chưa có ca nào</div>';
+  const f=t=>new Date(t).toLocaleString('en-US',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  $('list').innerHTML=inWeek.length?inWeek.map(s=>'<div class="row"><div>'+f(s.start)+'<div class="mut">'+(s.end?'→ '+new Date(s.end).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'running')+'</div></div><div>'+hm((s.end||now)-s.start)+' <button class="del" data-id="'+s.id+'">✕</button></div></div>').join(''):'<div class="mut" style="padding-top:8px">No sessions yet</div>';
 }
 $('toggle').onclick=()=>{running()?stop():start();render()};
 $('m').onclick=()=>{target=Math.max(1,target-1);localStorage.setItem(T,target);render()};
 $('p').onclick=()=>{target=Math.min(80,target+1);localStorage.setItem(T,target);render()};
-$('list').onclick=e=>{const id=e.target.dataset.id;if(id&&confirm('Xoá ca này?')){save(load().filter(s=>String(s.id)!==id));render()}};
+$('list').onclick=e=>{const id=e.target.dataset.id;if(id&&confirm('Delete this session?')){save(load().filter(s=>String(s.id)!==id));render()}};
 function hash(){const h=location.hash;if(h==='#start')start();else if(h==='#stop')stop();else return;history.replaceState(null,'',location.pathname);render()}
 addEventListener('hashchange',hash);hash();render();
 setInterval(render,1000);
