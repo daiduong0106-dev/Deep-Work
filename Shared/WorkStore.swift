@@ -48,7 +48,7 @@ final class WorkStore {
 
     func delete(ids: Set<UUID>) { sessions = sessions.filter { !ids.contains($0.id) } }
 
-    // MARK: Tuần (Thứ 2 → Chủ nhật)
+    // MARK: Week (Mon → Sun)
     static var calendar: Calendar {
         var c = Calendar.current
         c.firstWeekday = 2

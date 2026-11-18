@@ -5,7 +5,7 @@ import AppIntents
 struct WorkEntry: TimelineEntry {
     let date: Date
     let runningStart: Date?
-    let weekBase: TimeInterval      // tổng tuần, chưa tính ca đang chạy
+    let weekBase: TimeInterval      // week total, excluding the running session
     let weekAnchor: Date?           // mốc để Text(.timer) chạy tổng tuần
     let target: Double
 }
