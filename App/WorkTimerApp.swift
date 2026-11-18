@@ -13,11 +13,11 @@ struct WorkShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(intent: StartWorkIntent(),
                     phrases: ["Start work in \(.applicationName)"],
-                    shortTitle: "Bắt đầu giờ làm",
+                    shortTitle: "Start work",
                     systemImageName: "play.fill")
         AppShortcut(intent: StopWorkIntent(),
                     phrases: ["Stop work in \(.applicationName)"],
-                    shortTitle: "Dừng giờ làm",
+                    shortTitle: "Stop work",
                     systemImageName: "stop.fill")
     }
 }

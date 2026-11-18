@@ -2,7 +2,7 @@ import AppIntents
 import WidgetKit
 
 struct ToggleWorkIntent: AppIntent {
-    static let title: LocalizedStringResource = "Bật/tắt giờ làm"
+    static let title: LocalizedStringResource = "Toggle work timer"
     func perform() async throws -> some IntentResult {
         WorkStore.shared.toggle()
         WidgetCenter.shared.reloadAllTimelines()
@@ -11,7 +11,7 @@ struct ToggleWorkIntent: AppIntent {
 }
 
 struct StartWorkIntent: AppIntent {
-    static let title: LocalizedStringResource = "Bắt đầu giờ làm"
+    static let title: LocalizedStringResource = "Start work"
     func perform() async throws -> some IntentResult {
         WorkStore.shared.start()
         WidgetCenter.shared.reloadAllTimelines()
@@ -20,7 +20,7 @@ struct StartWorkIntent: AppIntent {
 }
 
 struct StopWorkIntent: AppIntent {
-    static let title: LocalizedStringResource = "Dừng giờ làm"
+    static let title: LocalizedStringResource = "Stop work"
     func perform() async throws -> some IntentResult {
         WorkStore.shared.stop()
         WidgetCenter.shared.reloadAllTimelines()

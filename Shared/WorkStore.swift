@@ -83,7 +83,7 @@ final class WorkStore {
 
 func hm(_ t: TimeInterval) -> String {
     let m = Int(t / 60)
-    return String(format: "%dh %02dp", m / 60, m % 60)
+    return String(format: "%dh %02dm", m / 60, m % 60)
 }
 
 func clock(_ t: TimeInterval) -> String {

@@ -24,7 +24,7 @@ targets:
     info:
       path: App/Info.plist
       properties:
-        CFBundleDisplayName: Giờ Làm
+        CFBundleDisplayName: Work Timer
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
     settings:
@@ -41,7 +41,7 @@ targets:
     info:
       path: Widget/Info.plist
       properties:
-        CFBundleDisplayName: Giờ Làm
+        CFBundleDisplayName: Work Timer
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     settings:

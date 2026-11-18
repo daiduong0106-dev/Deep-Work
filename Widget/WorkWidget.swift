@@ -44,22 +44,22 @@ struct WorkWidgetView: View {
         case .accessoryRectangular:
             VStack(alignment: .leading) {
                 if let s = entry.runningStart {
-                    Text("Đang làm").font(.caption2)
+                    Text("Working").font(.caption2)
                     Text(s, style: .timer).font(.headline).monospacedDigit()
                 } else {
-                    Text("Tuần: \(hm(entry.weekBase))").font(.headline)
+                    Text("Week: \(hm(entry.weekBase))").font(.headline)
                 }
-                Text("/ \(Int(entry.target))h tối thiểu").font(.caption2)
+                Text("/ \(Int(entry.target))h minimum").font(.caption2)
             }
         default:
             VStack(alignment: .leading, spacing: 8) {
                 if let s = entry.runningStart {
-                    Text("ĐANG LÀM").font(.caption.bold()).foregroundStyle(.green)
+                    Text("WORKING").font(.caption.bold()).foregroundStyle(.green)
                     Text(s, style: .timer)
                         .font(.system(size: 30, weight: .semibold, design: .rounded))
                         .monospacedDigit()
                 } else {
-                    Text("Chưa chạy").font(.caption.bold()).foregroundStyle(.secondary)
+                    Text("Not running").font(.caption.bold()).foregroundStyle(.secondary)
                 }
                 weekLine
                 ProgressView(value: min(1, entry.weekBase / (entry.target * 3600)))
@@ -81,7 +81,7 @@ struct WorkWidgetView: View {
 
     @ViewBuilder private var weekLine: some View {
         HStack(spacing: 4) {
-            Text("Tuần:").font(.caption)
+            Text("Week:").font(.caption)
             if let anchor = entry.weekAnchor {
                 Text(anchor, style: .timer).font(.caption.bold()).monospacedDigit()
             } else {
@@ -99,8 +99,8 @@ struct WorkWidget: Widget {
             WorkWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Giờ làm")
-        .description("Bấm Start/Stop và xem tổng giờ tuần này")
+        .configurationDisplayName("Work Timer")
+        .description("Tap Start/Stop and see this week's hours")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
     }
 }

@@ -12,7 +12,7 @@ struct ContentView: View {
             TimelineView(.periodic(from: Date(), by: 1)) { ctx in
                 content(now: ctx.date)
             }
-            .navigationTitle("Giờ làm")
+            .navigationTitle("Work Timer")
         }
         .onChange(of: phase) { _, new in if new == .active { tick += 1 } }
     }
@@ -50,17 +50,17 @@ struct ContentView: View {
                 .padding(.vertical, 8)
             }
 
-            Section("Tuần này (T2 → CN)") {
-                LabeledContent("Tổng giờ làm", value: hm(week))
+            Section("This week (Mon → Sun)") {
+                LabeledContent("Total hours", value: hm(week))
                 ProgressView(value: min(1, week / goal))
-                Text(missing > 0 ? "Còn thiếu \(hm(missing)) để đủ \(Int(target))h"
-                                 : "Đủ \(Int(target))h rồi ✅")
+                Text(missing > 0 ? "\(hm(missing)) left to reach \(Int(target))h"
+                                 : "Reached \(Int(target))h ✅")
                     .foregroundStyle(missing > 0 ? Color.orange : Color.green)
-                Stepper("Tối thiểu mỗi tuần: \(Int(target))h", value: $target, in: 1...80)
+                Stepper("Weekly minimum: \(Int(target))h", value: $target, in: 1...80)
             }
 
-            Section("Các ca trong tuần") {
-                if weekList.isEmpty { Text("Chưa có ca nào").foregroundStyle(.secondary) }
+            Section("Sessions this week") {
+                if weekList.isEmpty { Text("No sessions yet").foregroundStyle(.secondary) }
                 ForEach(weekList) { s in
                     HStack {
                         VStack(alignment: .leading) {
@@ -69,7 +69,7 @@ struct ContentView: View {
                                 Text("→ " + e.formatted(date: .omitted, time: .shortened))
                                     .font(.caption).foregroundStyle(.secondary)
                             } else {
-                                Text("đang chạy").font(.caption).foregroundStyle(.green)
+                                Text("running").font(.caption).foregroundStyle(.green)
                             }
                         }
                         Spacer()
