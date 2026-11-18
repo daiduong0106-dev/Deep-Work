@@ -23,7 +23,16 @@ h1{font-size:20px;margin:8px 0 16px;color:#9fb0c0;font-weight:600}
 .bar i{display:block;height:100%;background:#16a34a;width:0}
 .warn{color:#f59e0b}.ok{color:#22c55e}.mut{color:#7d8fa1;font-size:13px}
 .step button{background:#263140;color:#fff;border:0;border-radius:8px;width:36px;height:36px;font-size:20px}
-.del{background:none;border:0;color:#7d8fa1;font-size:18px}
+.add{background:#263140;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-size:14px}
+[data-id]{cursor:pointer}
+dialog{background:#141a22;color:#e8edf2;border:0;border-radius:18px;padding:20px;width:min(92vw,420px)}
+dialog::backdrop{background:#000a}
+dialog label{display:block;margin:12px 0 4px;color:#9fb0c0;font-size:14px}
+dialog input{width:100%;padding:12px;border-radius:10px;border:1px solid #263140;background:#0b0f14;color:#e8edf2;font-size:16px;color-scheme:dark}
+.acts{display:flex;gap:8px;margin-top:18px}
+.acts button{flex:1;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:600;color:#fff;background:#263140}
+.acts .save{background:#16a34a}.acts .rm{background:#dc2626}
+#dErr{color:#f59e0b;font-size:14px;min-height:18px;margin-top:8px}
 </style></head><body><div class="wrap">
 <h1>Work Timer</h1>
 <div class="clock" id="clock">00:00:00</div>
@@ -35,7 +44,13 @@ h1{font-size:20px;margin:8px 0 16px;color:#9fb0c0;font-weight:600}
   <div class="row step"><span>Weekly minimum</span>
     <span><button id="m">−</button> <b id="tgt">20</b>h <button id="p">+</button></span></div>
 </div>
-<div class="card"><b>Sessions this week</b><div id="list"></div></div>
+<div class="card"><div class="row" style="padding-top:0"><b>Sessions this week</b><button class="add" id="add">+ Add</button></div>
+<div class="mut">Tap a session to edit — e.g. if you forgot to stop.</div><div id="list"></div></div>
+<dialog id="dlg"><b id="dTitle">Edit session</b>
+<label for="dStart">Start</label><input type="datetime-local" id="dStart">
+<label for="dEnd">End (leave empty = still running)</label><input type="datetime-local" id="dEnd">
+<div id="dErr"></div>
+<div class="acts"><button id="dCancel">Cancel</button><button class="rm" id="dDel">Delete</button><button class="save" id="dSave">Save</button></div></dialog>
 </div>
 <script>
 const K='gioLam.sessions',T='gioLam.target';
@@ -60,12 +75,38 @@ function render(){
   $('need').innerHTML=miss>0?'<span class="warn">'+hm(miss)+' left to reach '+target+'h</span>':'<span class="ok">Reached '+target+'h ✅</span>';
   $('tgt').textContent=target;
   const f=t=>new Date(t).toLocaleString('en-US',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-  $('list').innerHTML=inWeek.length?inWeek.map(s=>'<div class="row"><div>'+f(s.start)+'<div class="mut">'+(s.end?'→ '+new Date(s.end).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'running')+'</div></div><div>'+hm((s.end||now)-s.start)+' <button class="del" data-id="'+s.id+'">✕</button></div></div>').join(''):'<div class="mut" style="padding-top:8px">No sessions yet</div>';
+  $('list').innerHTML=inWeek.length?inWeek.map(s=>'<div class="row" data-id="'+s.id+'"><div>'+f(s.start)+'<div class="mut">'+(s.end?'→ '+new Date(s.end).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}):'running')+'</div></div><div>'+hm((s.end||now)-s.start)+' ›</div></div>').join(''):'<div class="mut" style="padding-top:8px">No sessions yet</div>';
 }
 $('toggle').onclick=()=>{running()?stop():start();render()};
 $('m').onclick=()=>{target=Math.max(1,target-1);localStorage.setItem(T,target);render()};
 $('p').onclick=()=>{target=Math.min(80,target+1);localStorage.setItem(T,target);render()};
-$('list').onclick=e=>{const id=e.target.dataset.id;if(id&&confirm('Delete this session?')){save(load().filter(s=>String(s.id)!==id));render()}};
+const dlg=$('dlg');let editId=null;
+const loc=t=>new Date(t-new Date(t).getTimezoneOffset()*6e4).toISOString().slice(0,16);
+const err=m=>{$('dErr').textContent=m};
+function openEdit(id){
+  editId=id;const s=id?load().find(x=>String(x.id)===String(id)):null;
+  $('dTitle').textContent=s?'Edit session':'Add session';
+  $('dStart').value=loc(s?s.start:Date.now()-36e5);
+  $('dEnd').value=s?(s.end?loc(s.end):''):loc(Date.now());
+  $('dDel').style.display=s?'':'none';err('');dlg.showModal();
+}
+$('list').onclick=e=>{const r=e.target.closest('[data-id]');if(r)openEdit(r.dataset.id)};
+$('add').onclick=()=>openEdit(null);
+$('dCancel').onclick=e=>{e.preventDefault();dlg.close()};
+$('dDel').onclick=e=>{e.preventDefault();if(confirm('Delete this session?')){save(load().filter(x=>String(x.id)!==String(editId)));dlg.close();render()}};
+$('dSave').onclick=e=>{
+  e.preventDefault();
+  const st=new Date($('dStart').value).getTime(),en=$('dEnd').value?new Date($('dEnd').value).getTime():null,now=Date.now();
+  if(isNaN(st))return err('Enter a start time');
+  if(st>now+6e4)return err("Start can't be in the future");
+  if(en!==null&&(isNaN(en)||en<=st))return err('End must be after start');
+  if(en!==null&&en>now+6e4)return err("End can't be in the future");
+  const all=load();
+  if(en===null&&all.some(x=>!x.end&&String(x.id)!==String(editId)))return err('Another session is already running');
+  if(editId){const x=all.find(y=>String(y.id)===String(editId));x.start=st;if(en===null)delete x.end;else x.end=en}
+  else all.push(en===null?{id:Date.now(),start:st}:{id:Date.now(),start:st,end:en});
+  save(all);dlg.close();render();
+};
 function hash(){const h=location.hash;if(h==='#start')start();else if(h==='#stop')stop();else return;history.replaceState(null,'',location.pathname);render()}
 addEventListener('hashchange',hash);hash();render();
 setInterval(render,1000);
