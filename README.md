@@ -20,3 +20,10 @@ iOS không cho app tự bật Focus, nên dùng Shortcuts (1 tap):
 2. Tạo **Work Stop**: "Dừng giờ làm", rồi "Set Focus" → Turn Off.
 3. Đưa 2 shortcut này ra màn hình chính (widget Shortcuts) hoặc gán vào Action Button (Cài đặt → Nút tác vụ → Shortcut).
 Dùng cách này thì 1 chạm là vừa tính giờ vừa vào Work mode.
+
+---
+## Bản web (docs/) – không cần Xcode
+Bật GitHub Pages: repo → Settings → Pages → Source: Deploy from a branch → `main` / `/docs` → Save.
+Link: https://daiduong0106-dev.github.io/Deep-Work/
+Safari → Chia sẻ → Thêm vào Màn hình chính.
+Shortcut 1 chạm: "Set Focus: Work" + "Open URL" `https://daiduong0106-dev.github.io/Deep-Work/#start` (dừng thì dùng `#stop`).
